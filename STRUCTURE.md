@@ -109,11 +109,12 @@ PNPM monorepo with two packages: `backend` (Express API) and `mobile` (Expo Reac
 ```json
 {
   "dev": "tsx watch src/index.ts",
-  "build": "tsup",
-  "start": "node dist/index.js",
+  "start": "tsx src/index.ts",
   "seed": "tsx src/utils/seed.ts"
 }
 ```
+
+**Note**: Using `tsx` for both dev and production - runs TypeScript directly without compilation step (simpler for 7h challenge scope)
 
 ---
 
@@ -192,10 +193,11 @@ WORKDIR /app
 COPY package.json pnpm-lock.yaml ./
 RUN npm install -g pnpm && pnpm install --frozen-lockfile
 COPY . .
-RUN pnpm build
 EXPOSE 3000
-CMD ["pnpm", "start"]
+CMD ["pnpm", "start"]  # runs tsx src/index.ts
 ```
+
+**Note**: No build step needed - tsx runs TypeScript directly in production
 
 ### docker-compose.yml
 ```yaml

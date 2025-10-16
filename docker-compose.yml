@@ -1,0 +1,24 @@
+version: '3.8'
+
+services:
+  backend:
+    build:
+      context: .
+      dockerfile: ./packages/backend/Dockerfile
+    container_name: task-api
+    ports:
+      - '3000:3000'
+    environment:
+      NODE_ENV: production
+      PORT: 3000
+      JWT_SECRET: ${JWT_SECRET:-your-super-secret-key}
+      JWT_EXPIRES_IN: 7d
+      DATABASE_PATH: ./database/app.db
+    volumes:
+      - ./packages/backend/database:/app/database
+    command: sh -c "pnpm seed && pnpm start"
+    healthcheck:
+      test: ['CMD', 'curl', '-f', 'http://localhost:3000/health']
+      interval: 10s
+      timeout: 5s
+      retries: 5

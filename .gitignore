@@ -7,3 +7,9 @@ coverage
 *.backup
 temp
 **/*.log
+*.db
+.env
+.env.local
+.env.*.local
+packages/*/database/
+.DS_Store

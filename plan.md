@@ -11,9 +11,11 @@ Building a minimal CRUD mobile app with React Native (Expo) + Node.js backend to
 - **Database**: SQLite (embedded, no separate container)
 - **Authentication**: JWT (jsonwebtoken)
 - **Documentation**: Swagger UI Express
+- **Build**: tsx (TypeScript Execute - no build step needed)
 - **Key Libraries**: 
   - express
   - typescript
+  - tsx (runs TS directly, no compilation)
   - better-sqlite3
   - jsonwebtoken
   - bcrypt
@@ -177,25 +179,25 @@ See [STRUCTURE.md](./STRUCTURE.md) for complete folder structure.
 
 ### Phase 1: Backend Setup (2.5 hours)
 1. ✅ Create plan.md and STRUCTURE.md
-2. Initialize backend package structure
-3. Install dependencies
-4. Create SQLite database schema
-5. Build auth endpoints (register, login) with JWT
-6. Build CRUD endpoints for tasks
-7. Add JWT middleware
-8. Setup Swagger docs
-9. Create seed script
-10. Write Dockerfile
+2. ✅ Initialize backend package structure
+3. ✅ Install dependencies (express, tsx, better-sqlite3, etc.)
+4. ✅ Create SQLite database schema
+5. ✅ Build auth endpoints (register, login) with JWT
+6. ✅ Build CRUD endpoints for tasks
+7. ✅ Add JWT middleware
+8. ✅ Setup Swagger docs
+9. ✅ Create seed script
+10. Write Dockerfile (using tsx, not tsc/tsup)
 
 ### Phase 2: Frontend Setup (2 hours)
-1. Initialize Expo project with TypeScript
-2. Install navigation + dependencies
-3. Create API service layer (ofetch)
-4. Build Login screen
-5. Build Tasks screen with CRUD
-6. Implement token storage
-7. Add loading/error states
-8. Basic styling
+1. ✅ Initialize Expo project with TypeScript
+2. ✅ Install navigation + dependencies
+3. ✅ Create API service layer (ofetch)
+4. ✅ Build Login screen
+5. ✅ Build Tasks screen with CRUD
+6. ✅ Implement token storage
+7. ✅ Add loading/error states
+8. ✅ Basic styling
 
 ### Phase 3: DevOps & Testing (1.5 hours)
 1. Create docker-compose.yml
@@ -328,15 +330,19 @@ cd ~/dev/assigments/rn
 # Install dependencies
 pnpm install
 
-# Start backend
+# Start backend (Docker)
 docker compose up --build
+
+# OR start backend locally (no Docker)
+cd packages/backend
+pnpm dev  # tsx watch src/index.ts
 
 # Start mobile (separate terminal)
 cd packages/mobile
 pnpm start
 
 # Test credentials
-Email: test@example.com
+Email: test1@example.com
 Password: password123
 ```
 
