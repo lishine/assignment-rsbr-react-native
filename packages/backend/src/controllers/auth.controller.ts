@@ -1,8 +1,8 @@
 import { Request, Response } from 'express';
-import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import { createUser, getUserByEmail } from '../config/database.js';
 import { AuthRequest, RegisterRequest, AuthResponse, JwtPayload } from '../types.js';
+import { hashPassword, comparePassword } from '../utils/crypto.js';
 
 export async function register(req: Request<{}, {}, RegisterRequest>, res: Response) {
   try {
@@ -16,13 +16,13 @@ export async function register(req: Request<{}, {}, RegisterRequest>, res: Respo
       return res.status(400).json({ error: 'Password must be at least 6 characters' });
     }
 
-    const existingUser = getUserByEmail(email);
+    const existingUser = await getUserByEmail(email);
     if (existingUser) {
       return res.status(409).json({ error: 'Email already in use' });
     }
 
-    const hashedPassword = await bcrypt.hash(password, 10);
-    const user = createUser(email, hashedPassword, name);
+    const hashedPassword = await hashPassword(password);
+    const user = await createUser(email, hashedPassword, name);
 
     if (!user) {
       return res.status(500).json({ error: 'Failed to create user' });
@@ -55,12 +55,12 @@ export async function login(req: Request<{}, {}, AuthRequest>, res: Response) {
       return res.status(400).json({ error: 'Email and password required' });
     }
 
-    const user = getUserByEmail(email);
+    const user = await getUserByEmail(email);
     if (!user) {
       return res.status(401).json({ error: 'Invalid credentials' });
     }
 
-    const isPasswordValid = await bcrypt.compare(password, user.password);
+    const isPasswordValid = await comparePassword(password, user.password);
     if (!isPasswordValid) {
       return res.status(401).json({ error: 'Invalid credentials' });
     }

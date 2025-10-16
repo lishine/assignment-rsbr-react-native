@@ -1,106 +1,121 @@
-import Database from 'better-sqlite3';
-import path from 'path';
-import { fileURLToPath } from 'url';
+import { Pool, PoolClient } from 'pg';
 import { User, Task } from '../types.js';
 
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const dbPath = process.env.DATABASE_PATH || path.join(__dirname, '../../database/app.db');
+const pool = new Pool({
+  connectionString: process.env.DATABASE_URL || 'postgresql://taskapp:taskapp_password@localhost:5432/taskapp',
+});
 
-export const db = new Database(dbPath);
+export async function initializeDatabase() {
+  const client = await pool.connect();
+  try {
+    await client.query(`
+      CREATE TABLE IF NOT EXISTS users (
+        id SERIAL PRIMARY KEY,
+        email VARCHAR(255) UNIQUE NOT NULL,
+        password VARCHAR(255) NOT NULL,
+        name VARCHAR(255) NOT NULL,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      );
 
-export function initializeDatabase() {
-  db.exec(`
-    CREATE TABLE IF NOT EXISTS users (
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
-      email TEXT UNIQUE NOT NULL,
-      password TEXT NOT NULL,
-      name TEXT NOT NULL,
-      created_at DATETIME DEFAULT CURRENT_TIMESTAMP
-    );
-
-    CREATE TABLE IF NOT EXISTS tasks (
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
-      title TEXT NOT NULL,
-      description TEXT,
-      completed INTEGER DEFAULT 0,
-      user_id INTEGER NOT NULL,
-      created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-      updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-      FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
-    );
-  `);
-
-  console.log('✅ Database initialized');
+      CREATE TABLE IF NOT EXISTS tasks (
+        id SERIAL PRIMARY KEY,
+        title VARCHAR(255) NOT NULL,
+        description TEXT,
+        completed BOOLEAN DEFAULT false,
+        user_id INTEGER NOT NULL,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+      );
+    `);
+    console.log('✅ Database initialized');
+  } finally {
+    client.release();
+  }
 }
 
-export function getUserByEmail(email: string) {
-  const stmt = db.prepare('SELECT * FROM users WHERE email = ?');
-  return stmt.get(email) as User | undefined;
+export async function getUserByEmail(email: string): Promise<User | undefined> {
+  const result = await pool.query('SELECT * FROM users WHERE email = $1', [email]);
+  return result.rows[0];
 }
 
-export function getUserById(id: number) {
-  const stmt = db.prepare('SELECT * FROM users WHERE id = ?');
-  return stmt.get(id) as User | undefined;
+export async function getUserById(id: number): Promise<User | undefined> {
+  const result = await pool.query('SELECT * FROM users WHERE id = $1', [id]);
+  return result.rows[0];
 }
 
-export function createUser(email: string, password: string, name: string) {
-  const stmt = db.prepare(
-    'INSERT INTO users (email, password, name) VALUES (?, ?, ?)'
+export async function createUser(email: string, password: string, name: string): Promise<User | undefined> {
+  const result = await pool.query(
+    'INSERT INTO users (email, password, name) VALUES ($1, $2, $3) RETURNING *',
+    [email, password, name]
   );
-  const result = stmt.run(email, password, name);
-  return getUserById(Number(result.lastInsertRowid));
+  return result.rows[0];
 }
 
-export function getTasksByUserId(userId: number) {
-  const stmt = db.prepare('SELECT * FROM tasks WHERE user_id = ? ORDER BY created_at DESC');
-  return stmt.all(userId) as Task[];
-}
-
-export function getTaskById(id: number, userId: number) {
-  const stmt = db.prepare('SELECT * FROM tasks WHERE id = ? AND user_id = ?');
-  return stmt.get(id, userId) as Task | undefined;
-}
-
-export function createTask(title: string, description: string | undefined, userId: number) {
-  const stmt = db.prepare(
-    'INSERT INTO tasks (title, description, user_id) VALUES (?, ?, ?)'
+export async function getTasksByUserId(userId: number): Promise<Task[]> {
+  const result = await pool.query(
+    'SELECT * FROM tasks WHERE user_id = $1 ORDER BY created_at DESC',
+    [userId]
   );
-  const result = stmt.run(title, description || null, userId);
-  return getTaskById(Number(result.lastInsertRowid), userId);
+  return result.rows;
 }
 
-export function updateTask(
+export async function getTaskById(id: number, userId: number): Promise<Task | undefined> {
+  const result = await pool.query(
+    'SELECT * FROM tasks WHERE id = $1 AND user_id = $2',
+    [id, userId]
+  );
+  return result.rows[0];
+}
+
+export async function createTask(title: string, description: string | undefined, userId: number): Promise<Task | undefined> {
+  const result = await pool.query(
+    'INSERT INTO tasks (title, description, user_id) VALUES ($1, $2, $3) RETURNING *',
+    [title, description || null, userId]
+  );
+  return result.rows[0];
+}
+
+export async function updateTask(
   id: number,
   userId: number,
   updates: { title?: string; description?: string; completed?: boolean }
-) {
+): Promise<Task | undefined> {
   const fields = [];
-  const values = [];
+  const values: (string | boolean | number)[] = [];
+  let paramCount = 1;
 
   if (updates.title !== undefined) {
-    fields.push('title = ?');
+    fields.push(`title = $${paramCount++}`);
     values.push(updates.title);
   }
   if (updates.description !== undefined) {
-    fields.push('description = ?');
+    fields.push(`description = $${paramCount++}`);
     values.push(updates.description);
   }
   if (updates.completed !== undefined) {
-    fields.push('completed = ?');
-    values.push(updates.completed ? 1 : 0);
+    fields.push(`completed = $${paramCount++}`);
+    values.push(updates.completed);
   }
 
-  fields.push('updated_at = CURRENT_TIMESTAMP');
+  fields.push(`updated_at = CURRENT_TIMESTAMP`);
   values.push(id, userId);
 
-  const stmt = db.prepare(`UPDATE tasks SET ${fields.join(', ')} WHERE id = ? AND user_id = ?`);
-  stmt.run(...values);
-
-  return getTaskById(id, userId);
+  const result = await pool.query(
+    `UPDATE tasks SET ${fields.join(', ')} WHERE id = $${paramCount} AND user_id = $${paramCount + 1} RETURNING *`,
+    values
+  );
+  return result.rows[0];
 }
 
-export function deleteTask(id: number, userId: number) {
-  const stmt = db.prepare('DELETE FROM tasks WHERE id = ? AND user_id = ?');
-  const result = stmt.run(id, userId);
-  return result.changes > 0;
+export async function deleteTask(id: number, userId: number): Promise<boolean> {
+  const result = await pool.query(
+    'DELETE FROM tasks WHERE id = $1 AND user_id = $2',
+    [id, userId]
+  );
+  return result.rowCount ? result.rowCount > 0 : false;
+}
+
+export async function closeDatabase() {
+  await pool.end();
 }

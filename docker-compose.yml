@@ -1,4 +1,21 @@
 services:
+  postgres:
+    image: postgres:15-alpine
+    container_name: task-db
+    environment:
+      POSTGRES_USER: taskapp
+      POSTGRES_PASSWORD: taskapp_password
+      POSTGRES_DB: taskapp
+    ports:
+      - '5432:5432'
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U taskapp"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
   backend:
     build:
       context: .
@@ -6,16 +23,20 @@ services:
     container_name: task-api
     ports:
       - '3000:3000'
+    depends_on:
+      postgres:
+        condition: service_healthy
     environment:
       NODE_ENV: production
       PORT: 3000
       JWT_SECRET: ${JWT_SECRET:-your-super-secret-key}
       JWT_EXPIRES_IN: 7d
-      DATABASE_PATH: ./database/app.db
-    volumes:
-      - ./packages/backend/database:/app/packages/backend/database
+      DATABASE_URL: postgresql://taskapp:taskapp_password@postgres:5432/taskapp
     healthcheck:
       test: ['CMD', 'curl', '-f', 'http://localhost:3000/health']
       interval: 10s
       timeout: 5s
       retries: 5
+
+volumes:
+  postgres_data:

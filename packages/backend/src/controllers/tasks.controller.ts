@@ -8,10 +8,10 @@ import {
 } from '../config/database.js';
 import { TaskRequest } from '../types.js';
 
-export function listTasks(req: Request, res: Response) {
+export async function listTasks(req: Request, res: Response) {
   try {
     const userId = req.userId!;
-    const tasks = getTasksByUserId(userId);
+    const tasks = await getTasksByUserId(userId);
     res.json({ tasks });
   } catch (error) {
     console.error(error);
@@ -19,7 +19,7 @@ export function listTasks(req: Request, res: Response) {
   }
 }
 
-export function createNewTask(req: Request<{}, {}, TaskRequest>, res: Response) {
+export async function createNewTask(req: Request<{}, {}, TaskRequest>, res: Response) {
   try {
     const userId = req.userId!;
     const { title, description } = req.body;
@@ -28,7 +28,7 @@ export function createNewTask(req: Request<{}, {}, TaskRequest>, res: Response) 
       return res.status(400).json({ error: 'Title is required' });
     }
 
-    const task = createTask(title, description, userId);
+    const task = await createTask(title, description, userId);
     res.status(201).json({ task });
   } catch (error) {
     console.error(error);
@@ -36,7 +36,7 @@ export function createNewTask(req: Request<{}, {}, TaskRequest>, res: Response) 
   }
 }
 
-export function updateTaskHandler(
+export async function updateTaskHandler(
   req: Request<{ id: string }, {}, TaskRequest>,
   res: Response
 ) {
@@ -44,12 +44,12 @@ export function updateTaskHandler(
     const userId = req.userId!;
     const taskId = parseInt(req.params.id, 10);
 
-    const existing = getTaskById(taskId, userId);
+    const existing = await getTaskById(taskId, userId);
     if (!existing) {
       return res.status(404).json({ error: 'Task not found' });
     }
 
-    const task = updateTask(taskId, userId, req.body);
+    const task = await updateTask(taskId, userId, req.body);
     res.json({ task });
   } catch (error) {
     console.error(error);
@@ -57,17 +57,17 @@ export function updateTaskHandler(
   }
 }
 
-export function deleteTaskHandler(req: Request<{ id: string }>, res: Response) {
+export async function deleteTaskHandler(req: Request<{ id: string }>, res: Response) {
   try {
     const userId = req.userId!;
     const taskId = parseInt(req.params.id, 10);
 
-    const existing = getTaskById(taskId, userId);
+    const existing = await getTaskById(taskId, userId);
     if (!existing) {
       return res.status(404).json({ error: 'Task not found' });
     }
 
-    const success = deleteTask(taskId, userId);
+    const success = await deleteTask(taskId, userId);
     if (success) {
       res.json({ message: 'Task deleted' });
     } else {

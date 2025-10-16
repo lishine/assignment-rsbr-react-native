@@ -12,8 +12,6 @@ COPY packages/backend ./packages/backend
 COPY tsconfig.json .
 
 RUN npm install -g pnpm
-# Copy the backend .npmrc to enable scripts
-RUN echo "ignore-scripts=false" > /app/packages/backend/.npmrc
 RUN cd /app && pnpm install --frozen-lockfile
 
 EXPOSE 3000
