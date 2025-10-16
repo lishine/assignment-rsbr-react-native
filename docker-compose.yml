@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   backend:
     build:
@@ -15,8 +13,7 @@ services:
       JWT_EXPIRES_IN: 7d
       DATABASE_PATH: ./database/app.db
     volumes:
-      - ./packages/backend/database:/app/database
-    command: sh -c "pnpm seed && pnpm start"
+      - ./packages/backend/database:/app/packages/backend/database
     healthcheck:
       test: ['CMD', 'curl', '-f', 'http://localhost:3000/health']
       interval: 10s

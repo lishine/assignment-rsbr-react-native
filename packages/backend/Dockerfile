@@ -1,13 +1,24 @@
-FROM node:18-alpine
+FROM node:18
 
 WORKDIR /app
 
-COPY package.json pnpm-lock.yaml ./
+# Copy monorepo files
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
 
-RUN npm install -g pnpm && pnpm install --frozen-lockfile
+# Copy backend package
+COPY packages/backend ./packages/backend
 
-COPY . .
+# Copy workspace config
+COPY tsconfig.json .
+
+RUN npm install -g pnpm
+# Copy the backend .npmrc to enable scripts
+RUN echo "ignore-scripts=false" > /app/packages/backend/.npmrc
+RUN cd /app && pnpm install --frozen-lockfile
 
 EXPOSE 3000
 
+WORKDIR /app/packages/backend
+
+# Note: Run 'pnpm seed' separately after container starts
 CMD ["pnpm", "start"]
