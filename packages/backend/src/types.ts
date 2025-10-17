@@ -1,48 +1,48 @@
 export type User = {
-  id: number;
-  email: string;
-  name: string;
-  password: string;
-  created_at: string;
+	id: number
+	email: string
+	name: string
+	password: string
+	created_at: string
 }
 
 export type Task = {
-  id: number;
-  title: string;
-  description?: string;
-  completed: boolean;
-  user_id: number;
-  created_at: string;
-  updated_at: string;
+	id: number
+	title: string
+	description?: string
+	completed: boolean
+	user_id: number
+	created_at: string
+	updated_at: string
 }
 
 export type AuthRequest = {
-  email: string;
-  password: string;
+	email: string
+	password: string
 }
 
 export type RegisterRequest = AuthRequest & {
-  name: string;
+	name: string
 }
 
 export type AuthResponse = {
-  token: string;
-  user: Omit<User, 'password'>;
+	token: string
+	user: Omit<User, 'password'>
 }
 
 export type TaskRequest = {
-  title: string;
-  description?: string;
-  completed?: boolean;
+	title: string
+	description?: string
+	completed?: boolean
 }
 
 export type ApiResponse<T> = {
-  data?: T;
-  error?: string;
-  message?: string;
+	data?: T
+	error?: string
+	message?: string
 }
 
 export type JwtPayload = {
-  userId: number;
-  email: string;
+	userId: number
+	email: string
 }

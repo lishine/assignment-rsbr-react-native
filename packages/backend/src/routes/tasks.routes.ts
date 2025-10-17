@@ -1,19 +1,14 @@
-import { Router } from 'express';
-import { verifyToken } from '../middleware/auth.js';
-import {
-  listTasks,
-  createNewTask,
-  updateTaskHandler,
-  deleteTaskHandler,
-} from '../controllers/tasks.controller.js';
+import { Router } from 'express'
+import { verifyToken } from '../middleware/auth.js'
+import { listTasks, createNewTask, updateTaskHandler, deleteTaskHandler } from '../controllers/tasks.controller.js'
 
-const router: Router = Router();
+const router: Router = Router()
 
-router.use(verifyToken);
+router.use(verifyToken)
 
-router.get('/', listTasks);
-router.post('/', createNewTask);
-router.put('/:id', updateTaskHandler);
-router.delete('/:id', deleteTaskHandler);
+router.get('/', listTasks)
+router.post('/', createNewTask)
+router.put('/:id', updateTaskHandler)
+router.delete('/:id', deleteTaskHandler)
 
-export default router;
+export default router
