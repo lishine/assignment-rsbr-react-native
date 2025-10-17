@@ -227,7 +227,7 @@ export const TasksScreen = ({ onLogout }: TasksScreenProps) => {
 							deleting={deletingTaskId === item.id}
 						/>
 					)}
-					scrollEnabled
+					style={{ flex: 1 }}
 				/>
 			)}
 
@@ -238,12 +238,16 @@ export const TasksScreen = ({ onLogout }: TasksScreenProps) => {
 			<Modal visible={showModal} animationType="slide" onRequestClose={closeModal}>
 				<View style={styles.modalContainer}>
 					<View style={styles.modalHeader}>
-						<TouchableOpacity onPress={closeModal}>
-							<Text style={styles.modalCloseBtn}>Cancel</Text>
+						<TouchableOpacity style={[styles.modalBtn, styles.cancelBtn]} onPress={closeModal}>
+							<Text style={[styles.modalBtnText, styles.cancelBtnText]}>Cancel</Text>
 						</TouchableOpacity>
 						<Text style={styles.modalTitle}>{editingTask ? 'Edit Task' : 'New Task'}</Text>
-						<TouchableOpacity onPress={handleSaveTask} disabled={creatingTask}>
-							<Text style={[styles.modalSaveBtn, creatingTask && styles.modalSaveBtnDisabled]}>
+						<TouchableOpacity 
+							style={[styles.modalBtn, styles.saveBtn, !title.trim() && styles.btnDisabled]} 
+							onPress={handleSaveTask} 
+							disabled={creatingTask || !title.trim()}
+						>
+							<Text style={[styles.modalBtnText, !title.trim() && styles.btnDisabledText]}>
 								{creatingTask ? '...' : 'Save'}
 							</Text>
 						</TouchableOpacity>
@@ -482,23 +486,39 @@ const styles = StyleSheet.create({
 		borderBottomWidth: 1,
 		borderBottomColor: '#e0e0e0',
 	},
-	modalCloseBtn: {
-		color: '#007AFF',
-		fontSize: 16,
-		fontWeight: '500',
-	},
 	modalTitle: {
 		fontSize: 18,
 		fontWeight: '600',
 		color: '#000',
 	},
-	modalSaveBtn: {
-		color: '#007AFF',
+	modalBtn: {
+		paddingHorizontal: 16,
+		paddingVertical: 8,
+		borderRadius: 6,
+		borderWidth: 1,
+		borderColor: '#007AFF',
+		minWidth: 60,
+		alignItems: 'center',
+	},
+	cancelBtn: {
+		borderColor: '#666',
+	},
+	saveBtn: {
+		borderColor: '#007AFF',
+	},
+	btnDisabled: {
+		borderColor: '#ccc',
+	},
+	modalBtnText: {
 		fontSize: 16,
 		fontWeight: '600',
+		color: '#007AFF',
 	},
-	modalSaveBtnDisabled: {
-		opacity: 0.5,
+	cancelBtnText: {
+		color: '#666',
+	},
+	btnDisabledText: {
+		color: '#ccc',
 	},
 	modalForm: {
 		paddingHorizontal: 16,
