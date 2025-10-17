@@ -7,7 +7,7 @@ import {
   deleteTaskHandler,
 } from '../controllers/tasks.controller.js';
 
-const router = Router();
+const router: Router = Router();
 
 router.use(verifyToken);
 
