@@ -11,12 +11,14 @@ type TaskItemProps = {
 }
 
 export const TaskItem = ({ task, onToggle, onDelete, onEdit, loading, deleting }: TaskItemProps) => (
-	<View style={styles.container}>
+	<View style={[styles.container, task.completed && styles.containerCompleted]}>
 		<TouchableOpacity onPress={() => onToggle(task.id, !task.completed)} style={styles.checkbox} disabled={loading}>
 			{loading ? (
 				<ActivityIndicator size="small" color="#007AFF" />
 			) : (
-				<View style={[styles.checkboxBox, task.completed && styles.checkboxChecked]} />
+				<View style={[styles.checkboxBox, task.completed && styles.checkboxChecked]}>
+					{task.completed && <Text style={styles.checkmark}>✓</Text>}
+				</View>
 			)}
 		</TouchableOpacity>
 
@@ -26,7 +28,7 @@ export const TaskItem = ({ task, onToggle, onDelete, onEdit, loading, deleting }
 			disabled={!onEdit}
 		>
 			<Text style={[styles.title, task.completed && styles.titleCompleted]}>{task.title}</Text>
-			{task.description ? <Text style={styles.description}>{task.description}</Text> : null}
+			{task.description ? <Text style={[styles.description, task.completed && styles.descriptionCompleted]}>{task.description}</Text> : null}
 			
 			<View style={styles.mediaContainer}>
 				{task.image && task.image_type && task.drawing ? (
@@ -91,6 +93,10 @@ const styles = StyleSheet.create({
 		borderBottomWidth: 1,
 		borderBottomColor: '#e0e0e0',
 	},
+	containerCompleted: {
+		opacity: 0.6,
+		backgroundColor: '#f9f9f9',
+	},
 	checkbox: {
 		marginRight: 12,
 		padding: 8,
@@ -104,6 +110,14 @@ const styles = StyleSheet.create({
 	},
 	checkboxChecked: {
 		backgroundColor: '#007AFF',
+		borderColor: '#007AFF',
+	},
+	checkmark: {
+		color: 'white',
+		fontSize: 16,
+		fontWeight: 'bold',
+		textAlign: 'center',
+		lineHeight: 20,
 	},
 	content: {
 		flex: 1,
@@ -119,6 +133,9 @@ const styles = StyleSheet.create({
 	titleCompleted: {
 		color: '#999',
 		textDecorationLine: 'line-through',
+	},
+	descriptionCompleted: {
+		color: '#aaa',
 	},
 	description: {
 		fontSize: 14,
