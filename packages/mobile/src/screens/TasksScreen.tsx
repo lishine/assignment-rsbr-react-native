@@ -1,10 +1,12 @@
 import { useEffect, useState } from 'react'
-import { View, FlatList, TouchableOpacity, Text, StyleSheet, ActivityIndicator, TextInput, Modal } from 'react-native'
+import { View, FlatList, TouchableOpacity, Text, StyleSheet, ActivityIndicator, TextInput, Modal, ScrollView, Image } from 'react-native'
 import type { Task, User } from '../types'
 import { ErrorMessage } from '../components/ErrorMessage'
 import { TaskItem } from '../components/TaskItem'
 import { getTasks, createTask, deleteTask, toggleTaskCompletion } from '../services/api'
 import { clearAuth, getUser } from '../utils/storage'
+import ImagePickerComponent from '../components/ImagePickerComponent'
+import DrawingCanvas from '../components/DrawingCanvas'
 
 type TasksScreenProps = {
 	onLogout?: () => void
@@ -23,6 +25,10 @@ export const TasksScreen = ({ onLogout }: TasksScreenProps) => {
 	const [showDeleteModal, setShowDeleteModal] = useState(false)
 	const [taskToDelete, setTaskToDelete] = useState<number | null>(null)
 	const [showLogoutModal, setShowLogoutModal] = useState(false)
+	const [image, setImage] = useState('')
+	const [drawing, setDrawing] = useState('')
+	const [imageType, setImageType] = useState('')
+	const [showDrawingCanvas, setShowDrawingCanvas] = useState(false)
 
 	useEffect(() => {
 		loadTasks()
@@ -59,10 +65,16 @@ export const TasksScreen = ({ onLogout }: TasksScreenProps) => {
 			const newTask = await createTask({
 				title: title.trim(),
 				description: description.trim() || undefined,
+				image: image || undefined,
+				drawing: drawing || undefined,
+				image_type: imageType || undefined,
 			})
 			setTasks([newTask.task, ...tasks])
 			setTitle('')
 			setDescription('')
+			setImage('')
+			setDrawing('')
+			setImageType('')
 			setShowModal(false)
 		} catch (err: any) {
 			setError(err.data?.error || 'Failed to create task')
@@ -198,7 +210,7 @@ export const TasksScreen = ({ onLogout }: TasksScreenProps) => {
 						</TouchableOpacity>
 					</View>
 
-					<View style={styles.modalForm}>
+					<ScrollView style={styles.modalForm}>
 						<TextInput
 							style={styles.modalInput}
 							placeholder="Task Title"
@@ -215,7 +227,40 @@ export const TasksScreen = ({ onLogout }: TasksScreenProps) => {
 							editable={!creatingTask}
 							multiline
 						/>
-					</View>
+
+						<ImagePickerComponent
+							onImageSelected={(base64, mimeType) => {
+								setImage(base64)
+								setImageType(mimeType)
+							}}
+							currentImage={image}
+							currentImageType={imageType}
+						/>
+
+						<TouchableOpacity
+							style={styles.drawingButton}
+							onPress={() => setShowDrawingCanvas(true)}
+							disabled={creatingTask}
+						>
+							<Text style={styles.drawingButtonText}>
+								{drawing ? '✓ Drawing Added' : image ? '+ Draw on Image' : '+ Add Drawing'}
+							</Text>
+						</TouchableOpacity>
+
+						{drawing && (
+							<View style={styles.drawingPreviewContainer}>
+								<Text style={styles.drawingPreviewLabel}>Drawing Preview:</Text>
+								<Image source={{ uri: drawing }} style={styles.drawingPreview} resizeMode="contain" />
+								<TouchableOpacity
+									style={styles.removeDrawingButton}
+									onPress={() => setDrawing('')}
+									disabled={creatingTask}
+								>
+									<Text style={styles.removeDrawingButtonText}>Remove Drawing</Text>
+								</TouchableOpacity>
+							</View>
+						)}
+					</ScrollView>
 				</View>
 			</Modal>
 
@@ -266,6 +311,15 @@ export const TasksScreen = ({ onLogout }: TasksScreenProps) => {
 					</View>
 				</View>
 			</Modal>
+
+			{/* Drawing Canvas Modal */}
+			<DrawingCanvas
+				visible={showDrawingCanvas}
+				onClose={() => setShowDrawingCanvas(false)}
+				onSave={(base64) => setDrawing(base64)}
+				backgroundImage={image}
+				backgroundImageType={imageType}
+			/>
 		</View>
 	)
 }
@@ -446,5 +500,49 @@ const styles = StyleSheet.create({
 		color: '#fff',
 		fontSize: 16,
 		fontWeight: '500',
+	},
+	drawingButton: {
+		backgroundColor: '#34C759',
+		padding: 15,
+		borderRadius: 8,
+		alignItems: 'center',
+		marginTop: 10,
+	},
+	drawingButtonText: {
+		color: 'white',
+		fontSize: 16,
+		fontWeight: '600',
+	},
+	drawingPreviewContainer: {
+		marginTop: 15,
+		padding: 10,
+		backgroundColor: '#f9f9f9',
+		borderRadius: 8,
+		borderWidth: 1,
+		borderColor: '#e0e0e0',
+	},
+	drawingPreviewLabel: {
+		fontSize: 14,
+		fontWeight: '600',
+		color: '#333',
+		marginBottom: 10,
+	},
+	drawingPreview: {
+		width: '100%',
+		height: 200,
+		backgroundColor: 'white',
+		borderRadius: 4,
+		marginBottom: 10,
+	},
+	removeDrawingButton: {
+		backgroundColor: '#FF3B30',
+		padding: 10,
+		borderRadius: 6,
+		alignItems: 'center',
+	},
+	removeDrawingButtonText: {
+		color: 'white',
+		fontSize: 14,
+		fontWeight: '600',
 	},
 })

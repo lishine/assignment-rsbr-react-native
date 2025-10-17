@@ -1,4 +1,4 @@
-import { View, Text, StyleSheet, TouchableOpacity, ActivityIndicator } from 'react-native'
+import { View, Text, StyleSheet, TouchableOpacity, ActivityIndicator, Image } from 'react-native'
 import type { Task } from '../types'
 
 type TaskItemProps = {
@@ -22,6 +22,23 @@ export const TaskItem = ({ task, onToggle, onDelete, loading, deleting }: TaskIt
 		<View style={styles.content}>
 			<Text style={[styles.title, task.completed && styles.titleCompleted]}>{task.title}</Text>
 			{task.description ? <Text style={styles.description}>{task.description}</Text> : null}
+			
+			<View style={styles.mediaContainer}>
+				{task.image && task.image_type && (
+					<Image
+						source={{ uri: `data:${task.image_type};base64,${task.image}` }}
+						style={styles.thumbnail}
+						resizeMode="cover"
+					/>
+				)}
+				{task.drawing && (
+					<Image
+						source={{ uri: task.drawing }}
+						style={styles.thumbnail}
+						resizeMode="cover"
+					/>
+				)}
+			</View>
 		</View>
 
 		<TouchableOpacity
@@ -92,5 +109,15 @@ const styles = StyleSheet.create({
 		color: '#fff',
 		fontSize: 12,
 		fontWeight: '600',
+	},
+	mediaContainer: {
+		flexDirection: 'row',
+		marginTop: 8,
+		gap: 8,
+	},
+	thumbnail: {
+		width: 60,
+		height: 60,
+		borderRadius: 4,
 	},
 })

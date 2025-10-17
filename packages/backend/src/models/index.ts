@@ -33,20 +33,22 @@ export async function getTaskById(id: number, userId: number): Promise<Task | un
 export async function createTask(
 	title: string,
 	description: string | undefined,
-	userId: number
+	userId: number,
+	image?: string,
+	drawing?: string,
+	image_type?: string
 ): Promise<Task | undefined> {
-	const result = await pool.query('INSERT INTO tasks (title, description, user_id) VALUES ($1, $2, $3) RETURNING *', [
-		title,
-		description || null,
-		userId,
-	])
+	const result = await pool.query(
+		'INSERT INTO tasks (title, description, user_id, image, drawing, image_type) VALUES ($1, $2, $3, $4, $5, $6) RETURNING *',
+		[title, description || null, userId, image || null, drawing || null, image_type || null]
+	)
 	return result.rows[0]
 }
 
 export async function updateTask(
 	id: number,
 	userId: number,
-	updates: { title?: string; description?: string; completed?: boolean }
+	updates: { title?: string; description?: string; completed?: boolean; image?: string; drawing?: string; image_type?: string }
 ): Promise<Task | undefined> {
 	const fields = []
 	const values: (string | boolean | number)[] = []
@@ -63,6 +65,18 @@ export async function updateTask(
 	if (updates.completed !== undefined) {
 		fields.push(`completed = $${paramCount++}`)
 		values.push(updates.completed)
+	}
+	if (updates.image !== undefined) {
+		fields.push(`image = $${paramCount++}`)
+		values.push(updates.image)
+	}
+	if (updates.drawing !== undefined) {
+		fields.push(`drawing = $${paramCount++}`)
+		values.push(updates.drawing)
+	}
+	if (updates.image_type !== undefined) {
+		fields.push(`image_type = $${paramCount++}`)
+		values.push(updates.image_type)
 	}
 
 	fields.push(`updated_at = CURRENT_TIMESTAMP`)

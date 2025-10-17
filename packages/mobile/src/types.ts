@@ -13,6 +13,9 @@ export type Task = {
 	user_id: number
 	created_at: string
 	updated_at: string
+	image?: string
+	drawing?: string
+	image_type?: string
 }
 
 export type AuthRequest = {
@@ -33,6 +36,9 @@ export type TaskRequest = {
 	title: string
 	description?: string
 	completed?: boolean
+	image?: string
+	drawing?: string
+	image_type?: string
 }
 
 export type ApiError = {

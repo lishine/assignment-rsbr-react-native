@@ -24,6 +24,9 @@ export async function initializeDatabase() {
         user_id INTEGER NOT NULL,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        image TEXT,
+        drawing TEXT,
+        image_type VARCHAR(20),
         FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
       );
     `)

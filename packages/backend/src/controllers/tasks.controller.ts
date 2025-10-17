@@ -16,13 +16,13 @@ export async function listTasks(req: Request, res: Response) {
 export async function createNewTask(req: Request<{}, {}, TaskRequest>, res: Response) {
 	try {
 		const userId = req.userId!
-		const { title, description } = req.body
+		const { title, description, image, drawing, image_type } = req.body
 
 		if (!title) {
 			return res.status(400).json({ error: 'Title is required' })
 		}
 
-		const task = await createTask(title, description, userId)
+		const task = await createTask(title, description, userId, image, drawing, image_type)
 		res.status(201).json({ task })
 	} catch (error) {
 		console.error(error)
