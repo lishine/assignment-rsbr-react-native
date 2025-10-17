@@ -24,12 +24,12 @@ export const TaskItem = ({ task, onToggle, onDelete, loading, deleting }: TaskIt
 			{task.description ? <Text style={styles.description}>{task.description}</Text> : null}
 		</View>
 
-		<TouchableOpacity 
+		<TouchableOpacity
 			onPress={() => {
 				console.log('Delete button pressed for task:', task.id)
 				onDelete(task.id)
-			}} 
-			style={styles.deleteBtn} 
+			}}
+			style={styles.deleteBtn}
 			disabled={loading || deleting}
 			activeOpacity={0.8}
 		>
