@@ -2,16 +2,6 @@
 
 A minimal CRUD mobile app built with **React Native (Expo)** + **Node.js (Express)** demonstrating full-stack development.
 
-## Features
-
-✅ User authentication with JWT  
-✅ SQLite database with seed data  
-✅ Full CRUD operations on tasks  
-✅ Two screens: Login + Task Management  
-✅ Responsive mobile UI  
-✅ API documentation (Swagger)  
-✅ Docker-ready deployment
-
 ## Quick Start
 
 ### Prerequisites
@@ -31,8 +21,14 @@ pnpm install
 
 ### 2. Environment variables setup
 
--   Copy `.env.example` to `.env.local`
--   Edit EXPO_PUBLIC_API_URL with your machine ip or Tailscale ip
+-   Create `.env.local` (copy from `.env.example`)
+-   Configure mobile API URL: `EXPO_PUBLIC_API_URL=http://YOUR_IP:3000`
+    -   Replace `YOUR_IP` with your machine IP (find with `ipconfig getifaddr en0` on macOS) or Tailscale service ip
+
+Backend environment variables (handled by docker-compose):
+
+-   `JWT_SECRET` - Secret key for JWT signing
+-   `JWT_EXPIRES_IN` - Token expiration (default: 7d)
 
 ### 3. Start Backend
 
@@ -42,8 +38,8 @@ docker compose up --build
 
 The backend will:
 
--   Initialize Postgress database
--   Seed test data
+-   Initialize PostgreSQL database
+-   Seed test data with 2 users and sample tasks
 -   Run on `http://localhost:3000`
 -   Expose Swagger UI at `http://localhost:3000/api-docs`
 -   Expose health check at `http://localhost:3000/health`
@@ -55,11 +51,57 @@ cd packages/mobile
 pnpm start
 ```
 
--   Run expo-go on Android and scan the qr-code from terminal. You should then see login screen. If backend running by then and tunnel to PC created, you will be able to login.
-
--   Then scan the QR code with **Expo Go** app.
+-   Scan the QR code with **Expo Go** app
+-   Login with test credentials:
+    -   **Email**: `test1@example.com` | **Password**: `password123`
+    -   **Email**: `test2@example.com` | **Password**: `password123`
+-   If backend running by then and tunnel to PC created, you will be able to login.
 
 ---
+
+## AI Usage Disclosure
+
+This project was developed with AI assistance using Droid agent with Claude 4.5 and GLM 4.6 models
+
+## Features
+
+✅ User authentication with JWT  
+✅ PostgreSQL database with seed data  
+✅ Full CRUD operations on tasks  
+✅ Two screens: Login + Task Management  
+✅ Responsive mobile UI  
+✅ API documentation (Swagger)  
+✅ Docker-ready deployment
+
+### Test Accounts
+
+After running `docker compose up --build`, the database is seeded with:
+
+| Email             | Password    | Available Tasks |
+| ----------------- | ----------- | --------------- |
+| test1@example.com | password123 | 5 sample tasks  |
+| test2@example.com | password123 | 3 sample tasks  |
+
+---
+
+## API Endpoints
+
+### Authentication
+
+-   `POST /api/auth/register` - Register new user
+-   `POST /api/auth/login` - Login user
+
+### Tasks (Authenticated)
+
+-   `GET /api/tasks` - Get user's tasks
+-   `POST /api/tasks` - Create new task
+-   `PUT /api/tasks/:id` - Update task
+-   `DELETE /api/tasks/:id` - Delete task
+
+### Documentation & Health
+
+-   `GET /api-docs` - Swagger UI documentation
+-   `GET /health` - Service health check
 
 ## Tech Stack
 
@@ -67,7 +109,7 @@ pnpm start
 
 -   **Express.js** - REST API framework
 -   **TypeScript** - Type-safe backend
--   **SQLite** - Embedded database
+-   **PostgreSQL** - Production-ready database
 -   **JWT** - Authentication
 -   **Swagger UI** - API documentation
 -   **tsx** - Run TypeScript directly (no build step)
@@ -170,11 +212,47 @@ docker push your-registry/task-api:latest
 # Set: JWT_SECRET, NODE_ENV=production
 ```
 
-### APK Distribution
+### APK Build Instructions
 
-1. Build APK: `eas build --platform android --profile preview`
-2. Download from EAS
-3. Share APK file or via Google Play Store (requires account)
+1. **Setup EAS CLI** (one-time):
+
+    ```bash
+    npm install -g eas-cli
+    eas login
+    ```
+
+2. **Configure build profile** in `eas.json` (already included):
+
+    ```json
+    {
+    	"build": {
+    		"preview": {
+    			"android": {
+    				"buildType": "apk"
+    			}
+    		}
+    	}
+    }
+    ```
+
+3. **Build APK**:
+
+    ```bash
+    cd packages/mobile
+    eas build --platform android --profile preview
+    ```
+
+4. **Download APK** from the provided link or EAS dashboard
+
+5. **Install APK** on Android device:
+    - Enable "Install from unknown sources" in settings
+    - Transfer APK file to device and install
+
+### APK Distribution Options
+
+-   **Direct sharing**: Send APK file via email/messaging
+-   **Google Play Store**: Requires developer account ($25)
+-   **Enterprise distribution**: For internal company use
 
 ---
 
