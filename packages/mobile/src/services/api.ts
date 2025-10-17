@@ -1,10 +1,10 @@
-import { $fetch } from 'ofetch'
+import { ofetch } from 'ofetch'
 import type { AuthRequest, RegisterRequest, Task, TaskRequest, AuthResponse } from '../types'
 import { getToken } from '../utils/storage'
 
-const API_URL = process.env.EXPO_PUBLIC_API_URL || 'http://localhost:3000/api'
+const API_URL = process.env.EXPO_PUBLIC_API_URL
 
-const api = $fetch.create({
+const api = ofetch.create({
 	baseURL: API_URL,
 	timeout: 10000,
 	retry: 1,

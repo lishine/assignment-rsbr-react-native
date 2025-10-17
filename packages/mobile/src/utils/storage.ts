@@ -5,7 +5,6 @@ import type { User } from '../types'
 const TOKEN_KEY = 'auth_token'
 const USER_KEY = 'auth_user'
 
-// Check if we're on web platform
 const isWeb = Platform.OS === 'web'
 
 export async function saveToken(token: string): Promise<void> {

@@ -1,15 +1,6 @@
 import { useEffect, useState } from 'react'
-import {
-	View,
-	FlatList,
-	TouchableOpacity,
-	Text,
-	StyleSheet,
-	ActivityIndicator,
-	TextInput,
-	Modal,
-} from 'react-native'
-import type { Task, User } from '../types';
+import { View, FlatList, TouchableOpacity, Text, StyleSheet, ActivityIndicator, TextInput, Modal } from 'react-native'
+import type { Task, User } from '../types'
 import { ErrorMessage } from '../components/ErrorMessage'
 import { TaskItem } from '../components/TaskItem'
 import { getTasks, createTask, deleteTask, toggleTaskCompletion } from '../services/api'
@@ -41,7 +32,7 @@ export const TasksScreen = ({ onLogout }: TasksScreenProps) => {
 	const loadUser = async () => {
 		const userData = await getUser()
 		setUser(userData)
-	};
+	}
 
 	const loadTasks = async () => {
 		try {
@@ -54,7 +45,7 @@ export const TasksScreen = ({ onLogout }: TasksScreenProps) => {
 		} finally {
 			setLoading(false)
 		}
-	};
+	}
 
 	const handleAddTask = async () => {
 		if (!title.trim()) {
@@ -78,19 +69,19 @@ export const TasksScreen = ({ onLogout }: TasksScreenProps) => {
 		} finally {
 			setCreatingTask(false)
 		}
-	};
+	}
 
 	const handleDeleteTask = async (id: number) => {
 		console.log('handleDeleteTask called with id:', id)
 		setTaskToDelete(id)
 		setShowDeleteModal(true)
-	};
+	}
 
 	const confirmDelete = async () => {
 		if (taskToDelete === null) {
 			return
 		}
-		
+
 		try {
 			console.log('Delete confirmed for task:', taskToDelete)
 			setDeletingTaskId(taskToDelete)
@@ -104,12 +95,12 @@ export const TasksScreen = ({ onLogout }: TasksScreenProps) => {
 			setTaskToDelete(null)
 			setShowDeleteModal(false)
 		}
-	};
+	}
 
 	const cancelDelete = () => {
 		setTaskToDelete(null)
 		setShowDeleteModal(false)
-	};
+	}
 
 	const handleToggleTask = async (id: number, completed: boolean) => {
 		try {
@@ -118,31 +109,30 @@ export const TasksScreen = ({ onLogout }: TasksScreenProps) => {
 		} catch (err: any) {
 			setError(err.data?.error || 'Failed to update task')
 		}
-	};
+	}
 
 	const handleLogout = async () => {
 		console.log('handleLogout called')
 		setShowLogoutModal(true)
-	};
+	}
 
 	const confirmLogout = async () => {
 		try {
 			console.log('Starting logout process...')
 			await clearAuth()
 			console.log('Auth cleared, calling onLogout callback...')
-			onLogout?.()
 		} catch (error) {
 			console.error('Logout error:', error)
+		} finally {
 			// Even if there's an error, try to logout anyway
 			onLogout?.()
-		} finally {
 			setShowLogoutModal(false)
 		}
-	};
+	}
 
 	const cancelLogout = () => {
 		setShowLogoutModal(false)
-	};
+	}
 
 	return (
 		<View style={styles.container}>
@@ -155,7 +145,7 @@ export const TasksScreen = ({ onLogout }: TasksScreenProps) => {
 					onPress={() => {
 						console.log('Logout button pressed')
 						handleLogout()
-					}} 
+					}}
 					style={styles.logoutBtn}
 					activeOpacity={0.8}
 				>
@@ -179,9 +169,9 @@ export const TasksScreen = ({ onLogout }: TasksScreenProps) => {
 					data={tasks}
 					keyExtractor={(item) => item.id.toString()}
 					renderItem={({ item }) => (
-						<TaskItem 
-							task={item} 
-							onToggle={handleToggleTask} 
+						<TaskItem
+							task={item}
+							onToggle={handleToggleTask}
 							onDelete={handleDeleteTask}
 							deleting={deletingTaskId === item.id}
 						/>
@@ -236,10 +226,16 @@ export const TasksScreen = ({ onLogout }: TasksScreenProps) => {
 						<Text style={styles.confirmModalTitle}>Delete Task</Text>
 						<Text style={styles.confirmModalMessage}>Are you sure you want to delete this task?</Text>
 						<View style={styles.confirmModalButtons}>
-							<TouchableOpacity style={[styles.confirmModalButton, styles.cancelButton]} onPress={cancelDelete}>
+							<TouchableOpacity
+								style={[styles.confirmModalButton, styles.cancelButton]}
+								onPress={cancelDelete}
+							>
 								<Text style={styles.cancelButtonText}>Cancel</Text>
 							</TouchableOpacity>
-							<TouchableOpacity style={[styles.confirmModalButton, styles.deleteButton]} onPress={confirmDelete}>
+							<TouchableOpacity
+								style={[styles.confirmModalButton, styles.deleteButton]}
+								onPress={confirmDelete}
+							>
 								<Text style={styles.deleteButtonText}>Delete</Text>
 							</TouchableOpacity>
 						</View>
@@ -254,10 +250,16 @@ export const TasksScreen = ({ onLogout }: TasksScreenProps) => {
 						<Text style={styles.confirmModalTitle}>Logout</Text>
 						<Text style={styles.confirmModalMessage}>Are you sure you want to logout?</Text>
 						<View style={styles.confirmModalButtons}>
-							<TouchableOpacity style={[styles.confirmModalButton, styles.cancelButton]} onPress={cancelLogout}>
+							<TouchableOpacity
+								style={[styles.confirmModalButton, styles.cancelButton]}
+								onPress={cancelLogout}
+							>
 								<Text style={styles.cancelButtonText}>Cancel</Text>
 							</TouchableOpacity>
-							<TouchableOpacity style={[styles.confirmModalButton, styles.logoutButton]} onPress={confirmLogout}>
+							<TouchableOpacity
+								style={[styles.confirmModalButton, styles.logoutButton]}
+								onPress={confirmLogout}
+							>
 								<Text style={styles.logoutButtonText}>Logout</Text>
 							</TouchableOpacity>
 						</View>
@@ -266,7 +268,7 @@ export const TasksScreen = ({ onLogout }: TasksScreenProps) => {
 			</Modal>
 		</View>
 	)
-};
+}
 
 const styles = StyleSheet.create({
 	container: {

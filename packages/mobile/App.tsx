@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback } from 'react'
+import { useEffect, useState, useCallback } from 'react'
 import { View, Text, ActivityIndicator, StyleSheet } from 'react-native'
 import { AppNavigator } from './src/navigation/AppNavigator'
 import { getToken } from './src/utils/storage'
