@@ -16,7 +16,6 @@
 		"pnpm": ">=8.x"
 	},
 	"scripts": {
-		"build": "pnpm -r build",
 		"lint": "eslint packages/*/src --ext .ts,.tsx --cache",
 		"format": "prettier --write packages/**/src --cache",
 		"format:check": "prettier --check packages/**/**/src --cache",
