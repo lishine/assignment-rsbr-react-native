@@ -1,12 +1,23 @@
 import { useEffect, useState } from 'react'
-import { View, FlatList, TouchableOpacity, Text, StyleSheet, ActivityIndicator, TextInput, Modal, ScrollView, Image } from 'react-native'
+import {
+	View,
+	FlatList,
+	TouchableOpacity,
+	Text,
+	StyleSheet,
+	ActivityIndicator,
+	TextInput,
+	Modal,
+	ScrollView,
+	Image,
+} from 'react-native'
 import type { Task, User } from '../types'
+import DrawingCanvas from '../components/DrawingCanvas'
 import { ErrorMessage } from '../components/ErrorMessage'
+import ImagePickerComponent from '../components/ImagePickerComponent'
 import { TaskItem } from '../components/TaskItem'
 import { getTasks, createTask, updateTask, deleteTask, toggleTaskCompletion } from '../services/api'
 import { clearAuth, getUser } from '../utils/storage'
-import ImagePickerComponent from '../components/ImagePickerComponent'
-import DrawingCanvas from '../components/DrawingCanvas'
 
 type TasksScreenProps = {
 	onLogout?: () => void
@@ -92,7 +103,7 @@ export const TasksScreen = ({ onLogout }: TasksScreenProps) => {
 		try {
 			setCreatingTask(true)
 			setError('')
-			
+
 			// Always send both image and drawing when they exist
 			// We'll display them as layered/combined in the UI
 			const taskData = {
@@ -112,7 +123,7 @@ export const TasksScreen = ({ onLogout }: TasksScreenProps) => {
 				const newTask = await createTask(taskData)
 				setTasks([newTask.task, ...tasks])
 			}
-			
+
 			closeModal()
 		} catch (err: any) {
 			setError(err.data?.error || `Failed to ${editingTask ? 'update' : 'create'} task`)
@@ -161,11 +172,6 @@ export const TasksScreen = ({ onLogout }: TasksScreenProps) => {
 		}
 	}
 
-	const handleLogout = async () => {
-		console.log('handleLogout called')
-		setShowLogoutModal(true)
-	}
-
 	const confirmLogout = async () => {
 		try {
 			console.log('Starting logout process...')
@@ -187,49 +193,45 @@ export const TasksScreen = ({ onLogout }: TasksScreenProps) => {
 	return (
 		<View style={styles.container}>
 			<View style={styles.header}>
-				<View>
-					<Text style={styles.greeting}>Hi, {user?.name}</Text>
-					<Text style={styles.taskCount}>{tasks.filter((t) => !t.completed).length} active tasks</Text>
+				<View style={styles.headerContent}>
+					<View style={styles.headerRow}>
+						<Text style={styles.greeting}>Hi, {user?.name}</Text>
+					</View>
+					<View style={styles.headerRow}>
+						<Text style={styles.taskCount}>{tasks.filter((t) => !t.completed).length} active tasks</Text>
+					</View>
 				</View>
-				<TouchableOpacity
-					onPress={() => {
-						console.log('Logout button pressed')
-						handleLogout()
-					}}
-					style={styles.logoutBtn}
-					activeOpacity={0.8}
-				>
-					<Text style={styles.logoutBtnText}>Logout</Text>
-				</TouchableOpacity>
 			</View>
 
 			<ErrorMessage message={error} />
 
-			{loading ? (
-				<View style={styles.centerContainer}>
-					<ActivityIndicator size="large" color="#007AFF" />
-				</View>
-			) : tasks.length === 0 ? (
-				<View style={styles.centerContainer}>
-					<Text style={styles.emptyText}>No tasks yet</Text>
-					<Text style={styles.emptySubtext}>Create one to get started</Text>
-				</View>
-			) : (
-				<FlatList
-					data={tasks}
-					keyExtractor={(item) => item.id.toString()}
-					renderItem={({ item }) => (
-						<TaskItem
-							task={item}
-							onToggle={handleToggleTask}
-							onDelete={handleDeleteTask}
-							onEdit={openEditModal}
-							deleting={deletingTaskId === item.id}
-						/>
-					)}
-					style={{ flex: 1 }}
-				/>
-			)}
+			<View style={styles.contentContainer}>
+				{loading ? (
+					<View style={styles.centerContainer}>
+						<ActivityIndicator size="large" color="#007AFF" />
+					</View>
+				) : tasks.length === 0 ? (
+					<View style={styles.centerContainer}>
+						<Text style={styles.emptyText}>No tasks yet</Text>
+						<Text style={styles.emptySubtext}>Create one to get started</Text>
+					</View>
+				) : (
+					<FlatList
+						data={tasks}
+						keyExtractor={(item) => item.id.toString()}
+						renderItem={({ item }) => (
+							<TaskItem
+								task={item}
+								onToggle={handleToggleTask}
+								onDelete={handleDeleteTask}
+								onEdit={openEditModal}
+								deleting={deletingTaskId === item.id}
+							/>
+						)}
+						style={{ flex: 1 }}
+					/>
+				)}
+			</View>
 
 			<TouchableOpacity style={styles.fab} onPress={() => setShowModal(true)}>
 				<Text style={styles.fabText}>+</Text>
@@ -242,9 +244,9 @@ export const TasksScreen = ({ onLogout }: TasksScreenProps) => {
 							<Text style={[styles.modalBtnText, styles.cancelBtnText]}>Cancel</Text>
 						</TouchableOpacity>
 						<Text style={styles.modalTitle}>{editingTask ? 'Edit Task' : 'New Task'}</Text>
-						<TouchableOpacity 
-							style={[styles.modalBtn, styles.saveBtn, !title.trim() && styles.btnDisabled]} 
-							onPress={handleSaveTask} 
+						<TouchableOpacity
+							style={[styles.modalBtn, styles.saveBtn, !title.trim() && styles.btnDisabled]}
+							onPress={handleSaveTask}
 							disabled={creatingTask || !title.trim()}
 						>
 							<Text style={[styles.modalBtnText, !title.trim() && styles.btnDisabledText]}>
@@ -288,52 +290,63 @@ export const TasksScreen = ({ onLogout }: TasksScreenProps) => {
 									disabled={creatingTask}
 								>
 									<Text style={styles.drawingButtonText}>
-										{drawing ? 
-											(drawingHasImage ? '✓ Drawing on Image' : '✓ Drawing Added') : 
-											(image ? '+ Draw on Image' : '+ Add Drawing')
-										}
+										{drawing
+											? drawingHasImage
+												? '✓ Drawing on Image'
+												: '✓ Drawing Added'
+											: image
+												? '+ Draw on Image'
+												: '+ Add Drawing'}
 									</Text>
 								</TouchableOpacity>
 							</>
 						)}
 
 						{/* Show combined preview when we have both image and drawing */}
-	{(image && drawing) ? (
-		<View style={styles.combinedPreviewContainer}>
-			<Text style={styles.combinedPreviewLabel}>Drawing on Image Preview:</Text>
-			<View style={styles.layeredPreview}>
-				<Image source={{ uri: `data:${imageType};base64,${image}` }} style={styles.baseImagePreview} resizeMode="contain" />
-				<Image source={{ uri: drawing }} style={styles.drawingOverlay} resizeMode="contain" />
-			</View>
-			<TouchableOpacity
-				style={styles.removeDrawingButton}
-				onPress={() => {
-					setDrawing('')
-					setDrawingHasImage(false)
-				}}
-				disabled={creatingTask}
-			>
-				<Text style={styles.removeDrawingButtonText}>Remove Drawing</Text>
-			</TouchableOpacity>
-		</View>
-	) : drawing ? (
-		<View style={styles.drawingPreviewContainer}>
-			<Text style={styles.drawingPreviewLabel}>
-				{drawingHasImage ? 'Drawing on Image Preview:' : 'Drawing Preview:'}
-			</Text>
-			<Image source={{ uri: drawing }} style={styles.drawingPreview} resizeMode="contain" />
-			<TouchableOpacity
-				style={styles.removeDrawingButton}
-				onPress={() => {
-					setDrawing('')
-					setDrawingHasImage(false)
-				}}
-				disabled={creatingTask}
-			>
-				<Text style={styles.removeDrawingButtonText}>Remove Drawing</Text>
-			</TouchableOpacity>
-		</View>
-	) : null}
+						{image && drawing ? (
+							<View style={styles.combinedPreviewContainer}>
+								<Text style={styles.combinedPreviewLabel}>Drawing on Image Preview:</Text>
+								<View style={styles.layeredPreview}>
+									<Image
+										source={{ uri: `data:${imageType};base64,${image}` }}
+										style={styles.baseImagePreview}
+										resizeMode="contain"
+									/>
+									<Image
+										source={{ uri: drawing }}
+										style={styles.drawingOverlay}
+										resizeMode="contain"
+									/>
+								</View>
+								<TouchableOpacity
+									style={styles.removeDrawingButton}
+									onPress={() => {
+										setDrawing('')
+										setDrawingHasImage(false)
+									}}
+									disabled={creatingTask}
+								>
+									<Text style={styles.removeDrawingButtonText}>Remove Drawing</Text>
+								</TouchableOpacity>
+							</View>
+						) : drawing ? (
+							<View style={styles.drawingPreviewContainer}>
+								<Text style={styles.drawingPreviewLabel}>
+									{drawingHasImage ? 'Drawing on Image Preview:' : 'Drawing Preview:'}
+								</Text>
+								<Image source={{ uri: drawing }} style={styles.drawingPreview} resizeMode="contain" />
+								<TouchableOpacity
+									style={styles.removeDrawingButton}
+									onPress={() => {
+										setDrawing('')
+										setDrawingHasImage(false)
+									}}
+									disabled={creatingTask}
+								>
+									<Text style={styles.removeDrawingButtonText}>Remove Drawing</Text>
+								</TouchableOpacity>
+							</View>
+						) : null}
 					</ScrollView>
 				</View>
 			</Modal>
@@ -412,36 +425,50 @@ const styles = StyleSheet.create({
 		flex: 1,
 		backgroundColor: '#fff',
 	},
+	contentContainer: {
+		flex: 1,
+		backgroundColor: '#ffffff',
+		borderTopColor: '#ffffff',
+		marginTop: -1, // Overlap the border to create separation
+	},
+
 	header: {
-		flexDirection: 'row',
-		justifyContent: 'space-between',
+		backgroundColor: '#f8f9fa',
+		borderBottomWidth: 2,
+		borderBottomColor: '#dee2e6',
+		shadowColor: '#000',
+		shadowOffset: {
+			width: 0,
+			height: 2,
+		},
+		shadowOpacity: 0.1,
+		shadowRadius: 3.84,
+		elevation: 5,
+	},
+	headerContent: {
+		flexDirection: 'column',
+		justifyContent: 'center',
 		alignItems: 'center',
 		paddingHorizontal: 16,
-		paddingVertical: 16,
-		borderBottomWidth: 1,
-		borderBottomColor: '#e0e0e0',
+		paddingVertical: 11,
+	},
+	headerRow: {
+		flexDirection: 'row',
+		justifyContent: 'center',
+		alignItems: 'center',
 	},
 	greeting: {
 		fontSize: 20,
-		fontWeight: '600',
-		color: '#000',
+		fontWeight: '700',
+		color: '#1a1a1a',
+		marginBottom: 2,
 	},
 	taskCount: {
-		fontSize: 14,
-		color: '#666',
-		marginTop: 4,
+		fontSize: 16,
+		color: '#6c757d',
+		fontWeight: '500',
 	},
-	logoutBtn: {
-		paddingHorizontal: 12,
-		paddingVertical: 6,
-		backgroundColor: '#ff3b30',
-		borderRadius: 4,
-	},
-	logoutBtnText: {
-		color: '#fff',
-		fontSize: 12,
-		fontWeight: '600',
-	},
+
 	centerContainer: {
 		flex: 1,
 		justifyContent: 'center',
@@ -597,7 +624,6 @@ const styles = StyleSheet.create({
 	},
 	logoutButtonText: {
 		color: '#fff',
-		fontSize: 16,
 		fontWeight: '500',
 	},
 	drawingButton: {
