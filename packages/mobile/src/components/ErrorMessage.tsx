@@ -1,6 +1,6 @@
 import { View, Text, StyleSheet } from 'react-native'
 
-interface ErrorMessageProps {
+type ErrorMessageProps = {
 	message?: string
 }
 

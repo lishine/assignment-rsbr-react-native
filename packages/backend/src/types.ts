@@ -1,4 +1,4 @@
-export interface User {
+export type User = {
   id: number;
   email: string;
   name: string;
@@ -6,7 +6,7 @@ export interface User {
   created_at: string;
 }
 
-export interface Task {
+export type Task = {
   id: number;
   title: string;
   description?: string;
@@ -16,33 +16,33 @@ export interface Task {
   updated_at: string;
 }
 
-export interface AuthRequest {
+export type AuthRequest = {
   email: string;
   password: string;
 }
 
-export interface RegisterRequest extends AuthRequest {
+export type RegisterRequest = AuthRequest & {
   name: string;
 }
 
-export interface AuthResponse {
+export type AuthResponse = {
   token: string;
   user: Omit<User, 'password'>;
 }
 
-export interface TaskRequest {
+export type TaskRequest = {
   title: string;
   description?: string;
   completed?: boolean;
 }
 
-export interface ApiResponse<T> {
+export type ApiResponse<T> = {
   data?: T;
   error?: string;
   message?: string;
 }
 
-export interface JwtPayload {
+export type JwtPayload = {
   userId: number;
   email: string;
 }

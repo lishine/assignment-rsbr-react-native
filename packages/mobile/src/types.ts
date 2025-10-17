@@ -1,11 +1,11 @@
-export interface User {
+export type User = {
 	id: number
 	email: string
 	name: string
 	created_at: string
 }
 
-export interface Task {
+export type Task = {
 	id: number
 	title: string
 	description?: string
@@ -15,27 +15,27 @@ export interface Task {
 	updated_at: string
 }
 
-export interface AuthRequest {
+export type AuthRequest = {
 	email: string
 	password: string
 }
 
-export interface RegisterRequest extends AuthRequest {
+export type RegisterRequest = AuthRequest & {
 	name: string
 }
 
-export interface AuthResponse {
+export type AuthResponse = {
 	token: string
 	user: User
 }
 
-export interface TaskRequest {
+export type TaskRequest = {
 	title: string
 	description?: string
 	completed?: boolean
 }
 
-export interface ApiError {
+export type ApiError = {
 	error?: string
 	message?: string
 }

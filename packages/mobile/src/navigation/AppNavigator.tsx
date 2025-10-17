@@ -10,7 +10,7 @@ export type RootStackParamList = {
 
 const Stack = createStackNavigator<RootStackParamList>()
 
-interface AppNavigatorProps {
+type AppNavigatorProps = {
 	isSignedIn: boolean
 	onLoginSuccess: () => void
 	onLogout: () => void

@@ -22,6 +22,9 @@ export async function hashPassword(password: string): Promise<string> {
  */
 export async function comparePassword(password: string, hash: string): Promise<boolean> {
   const [salt, storedHash] = hash.split('.');
+  if (!salt || !storedHash) {
+    return false;
+  }
   const buf = (await scryptAsync(password, salt, 64)) as Buffer;
   return timingSafeEqual(Buffer.from(storedHash, 'hex'), buf);
 }

@@ -4,7 +4,7 @@ import { ErrorMessage } from '../components/ErrorMessage'
 import { login, register } from '../services/api'
 import { saveToken, saveUser } from '../utils/storage'
 
-interface LoginScreenProps {
+type LoginScreenProps = {
 	onLoginSuccess?: () => void
 }
 

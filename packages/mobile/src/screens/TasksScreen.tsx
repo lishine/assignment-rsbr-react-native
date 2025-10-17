@@ -6,7 +6,7 @@ import { TaskItem } from '../components/TaskItem'
 import { getTasks, createTask, deleteTask, toggleTaskCompletion } from '../services/api'
 import { clearAuth, getUser } from '../utils/storage'
 
-interface TasksScreenProps {
+type TasksScreenProps = {
 	onLogout?: () => void
 }
 

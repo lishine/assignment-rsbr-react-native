@@ -1,7 +1,7 @@
 import { View, Text, StyleSheet, TouchableOpacity, ActivityIndicator } from 'react-native'
 import type { Task } from '../types'
 
-interface TaskItemProps {
+type TaskItemProps = {
 	task: Task
 	onToggle: (id: number, completed: boolean) => void
 	onDelete: (id: number) => void
