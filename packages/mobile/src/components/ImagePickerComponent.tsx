@@ -87,10 +87,6 @@ export default function ImagePickerComponent({ onImageSelected, currentImage, cu
 
 			const mimeType = 'image/jpeg'
 
-			if (compressed) {
-				Alert.alert('Image Compressed', `Image was compressed to ${Math.round(finalSize / 1024)}KB to meet size limit.`)
-			}
-
 			setPreviewUri(`data:${mimeType};base64,${base64}`)
 			onImageSelected(base64, mimeType)
 		} catch (error) {

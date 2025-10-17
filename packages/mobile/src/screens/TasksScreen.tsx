@@ -3,7 +3,7 @@ import { View, FlatList, TouchableOpacity, Text, StyleSheet, ActivityIndicator, 
 import type { Task, User } from '../types'
 import { ErrorMessage } from '../components/ErrorMessage'
 import { TaskItem } from '../components/TaskItem'
-import { getTasks, createTask, deleteTask, toggleTaskCompletion } from '../services/api'
+import { getTasks, createTask, updateTask, deleteTask, toggleTaskCompletion } from '../services/api'
 import { clearAuth, getUser } from '../utils/storage'
 import ImagePickerComponent from '../components/ImagePickerComponent'
 import DrawingCanvas from '../components/DrawingCanvas'
@@ -29,6 +29,8 @@ export const TasksScreen = ({ onLogout }: TasksScreenProps) => {
 	const [drawing, setDrawing] = useState('')
 	const [imageType, setImageType] = useState('')
 	const [showDrawingCanvas, setShowDrawingCanvas] = useState(false)
+	const [editingTask, setEditingTask] = useState<Task | null>(null)
+	const [drawingHasImage, setDrawingHasImage] = useState(false) // Track if drawing was created from image
 
 	useEffect(() => {
 		loadTasks()
@@ -38,6 +40,34 @@ export const TasksScreen = ({ onLogout }: TasksScreenProps) => {
 	const loadUser = async () => {
 		const userData = await getUser()
 		setUser(userData)
+	}
+
+	const clearFormData = () => {
+		setTitle('')
+		setDescription('')
+		setImage('')
+		setDrawing('')
+		setImageType('')
+		setDrawingHasImage(false)
+		setError('')
+	}
+
+	const closeModal = () => {
+		clearFormData()
+		setEditingTask(null)
+		setShowModal(false)
+	}
+
+	const openEditModal = (task: Task) => {
+		setEditingTask(task)
+		setTitle(task.title)
+		setDescription(task.description || '')
+		// Show both image and drawing when editing (they will be displayed as layered)
+		setImage(task.image || '')
+		setImageType(task.image_type || '')
+		setDrawing(task.drawing || '')
+		setDrawingHasImage(!!(task.image && task.drawing))
+		setShowModal(true)
 	}
 
 	const loadTasks = async () => {
@@ -53,7 +83,7 @@ export const TasksScreen = ({ onLogout }: TasksScreenProps) => {
 		}
 	}
 
-	const handleAddTask = async () => {
+	const handleSaveTask = async () => {
 		if (!title.trim()) {
 			setError('Task title is required')
 			return
@@ -62,22 +92,30 @@ export const TasksScreen = ({ onLogout }: TasksScreenProps) => {
 		try {
 			setCreatingTask(true)
 			setError('')
-			const newTask = await createTask({
+			
+			// Always send both image and drawing when they exist
+			// We'll display them as layered/combined in the UI
+			const taskData = {
 				title: title.trim(),
 				description: description.trim() || undefined,
 				image: image || undefined,
 				drawing: drawing || undefined,
 				image_type: imageType || undefined,
-			})
-			setTasks([newTask.task, ...tasks])
-			setTitle('')
-			setDescription('')
-			setImage('')
-			setDrawing('')
-			setImageType('')
-			setShowModal(false)
+			}
+
+			if (editingTask) {
+				// Update existing task
+				const updatedTask = await updateTask(editingTask.id, taskData)
+				setTasks(tasks.map((t) => (t.id === editingTask.id ? updatedTask.task : t)))
+			} else {
+				// Create new task
+				const newTask = await createTask(taskData)
+				setTasks([newTask.task, ...tasks])
+			}
+			
+			closeModal()
 		} catch (err: any) {
-			setError(err.data?.error || 'Failed to create task')
+			setError(err.data?.error || `Failed to ${editingTask ? 'update' : 'create'} task`)
 		} finally {
 			setCreatingTask(false)
 		}
@@ -185,6 +223,7 @@ export const TasksScreen = ({ onLogout }: TasksScreenProps) => {
 							task={item}
 							onToggle={handleToggleTask}
 							onDelete={handleDeleteTask}
+							onEdit={openEditModal}
 							deleting={deletingTaskId === item.id}
 						/>
 					)}
@@ -196,14 +235,14 @@ export const TasksScreen = ({ onLogout }: TasksScreenProps) => {
 				<Text style={styles.fabText}>+</Text>
 			</TouchableOpacity>
 
-			<Modal visible={showModal} animationType="slide" onRequestClose={() => setShowModal(false)}>
+			<Modal visible={showModal} animationType="slide" onRequestClose={closeModal}>
 				<View style={styles.modalContainer}>
 					<View style={styles.modalHeader}>
-						<TouchableOpacity onPress={() => setShowModal(false)}>
+						<TouchableOpacity onPress={closeModal}>
 							<Text style={styles.modalCloseBtn}>Cancel</Text>
 						</TouchableOpacity>
-						<Text style={styles.modalTitle}>New Task</Text>
-						<TouchableOpacity onPress={handleAddTask} disabled={creatingTask}>
+						<Text style={styles.modalTitle}>{editingTask ? 'Edit Task' : 'New Task'}</Text>
+						<TouchableOpacity onPress={handleSaveTask} disabled={creatingTask}>
 							<Text style={[styles.modalSaveBtn, creatingTask && styles.modalSaveBtnDisabled]}>
 								{creatingTask ? '...' : 'Save'}
 							</Text>
@@ -217,7 +256,7 @@ export const TasksScreen = ({ onLogout }: TasksScreenProps) => {
 							value={title}
 							onChangeText={setTitle}
 							editable={!creatingTask}
-							autoFocus
+							autoFocus={!editingTask}
 						/>
 						<TextInput
 							style={[styles.modalInput, styles.modalTextArea]}
@@ -228,38 +267,69 @@ export const TasksScreen = ({ onLogout }: TasksScreenProps) => {
 							multiline
 						/>
 
-						<ImagePickerComponent
-							onImageSelected={(base64, mimeType) => {
-								setImage(base64)
-								setImageType(mimeType)
-							}}
-							currentImage={image}
-							currentImageType={imageType}
-						/>
+						{!(image && drawing) && (
+							<>
+								<ImagePickerComponent
+									onImageSelected={(base64, mimeType) => {
+										setImage(base64)
+										setImageType(mimeType)
+									}}
+									currentImage={image}
+									currentImageType={imageType}
+								/>
 
-						<TouchableOpacity
-							style={styles.drawingButton}
-							onPress={() => setShowDrawingCanvas(true)}
-							disabled={creatingTask}
-						>
-							<Text style={styles.drawingButtonText}>
-								{drawing ? '✓ Drawing Added' : image ? '+ Draw on Image' : '+ Add Drawing'}
-							</Text>
-						</TouchableOpacity>
-
-						{drawing && (
-							<View style={styles.drawingPreviewContainer}>
-								<Text style={styles.drawingPreviewLabel}>Drawing Preview:</Text>
-								<Image source={{ uri: drawing }} style={styles.drawingPreview} resizeMode="contain" />
 								<TouchableOpacity
-									style={styles.removeDrawingButton}
-									onPress={() => setDrawing('')}
+									style={styles.drawingButton}
+									onPress={() => setShowDrawingCanvas(true)}
 									disabled={creatingTask}
 								>
-									<Text style={styles.removeDrawingButtonText}>Remove Drawing</Text>
+									<Text style={styles.drawingButtonText}>
+										{drawing ? 
+											(drawingHasImage ? '✓ Drawing on Image' : '✓ Drawing Added') : 
+											(image ? '+ Draw on Image' : '+ Add Drawing')
+										}
+									</Text>
 								</TouchableOpacity>
-							</View>
+							</>
 						)}
+
+						{/* Show combined preview when we have both image and drawing */}
+	{(image && drawing) ? (
+		<View style={styles.combinedPreviewContainer}>
+			<Text style={styles.combinedPreviewLabel}>Drawing on Image Preview:</Text>
+			<View style={styles.layeredPreview}>
+				<Image source={{ uri: `data:${imageType};base64,${image}` }} style={styles.baseImagePreview} resizeMode="contain" />
+				<Image source={{ uri: drawing }} style={styles.drawingOverlay} resizeMode="contain" />
+			</View>
+			<TouchableOpacity
+				style={styles.removeDrawingButton}
+				onPress={() => {
+					setDrawing('')
+					setDrawingHasImage(false)
+				}}
+				disabled={creatingTask}
+			>
+				<Text style={styles.removeDrawingButtonText}>Remove Drawing</Text>
+			</TouchableOpacity>
+		</View>
+	) : drawing ? (
+		<View style={styles.drawingPreviewContainer}>
+			<Text style={styles.drawingPreviewLabel}>
+				{drawingHasImage ? 'Drawing on Image Preview:' : 'Drawing Preview:'}
+			</Text>
+			<Image source={{ uri: drawing }} style={styles.drawingPreview} resizeMode="contain" />
+			<TouchableOpacity
+				style={styles.removeDrawingButton}
+				onPress={() => {
+					setDrawing('')
+					setDrawingHasImage(false)
+				}}
+				disabled={creatingTask}
+			>
+				<Text style={styles.removeDrawingButtonText}>Remove Drawing</Text>
+			</TouchableOpacity>
+		</View>
+	) : null}
 					</ScrollView>
 				</View>
 			</Modal>
@@ -316,7 +386,16 @@ export const TasksScreen = ({ onLogout }: TasksScreenProps) => {
 			<DrawingCanvas
 				visible={showDrawingCanvas}
 				onClose={() => setShowDrawingCanvas(false)}
-				onSave={(base64) => setDrawing(base64)}
+				onSave={(base64) => {
+					setDrawing(base64)
+					// If we drew on an image, mark it but keep the image for layered preview
+					if (image) {
+						setDrawingHasImage(true)
+						// Don't clear image - keep it for layered preview
+					} else {
+						setDrawingHasImage(false)
+					}
+				}}
 				backgroundImage={image}
 				backgroundImageType={imageType}
 			/>
@@ -544,5 +623,40 @@ const styles = StyleSheet.create({
 		color: 'white',
 		fontSize: 14,
 		fontWeight: '600',
+	},
+	combinedPreviewContainer: {
+		marginTop: 15,
+		padding: 10,
+		backgroundColor: '#f9f9f9',
+		borderRadius: 8,
+		borderWidth: 1,
+		borderColor: '#e0e0e0',
+	},
+	combinedPreviewLabel: {
+		fontSize: 14,
+		fontWeight: '600',
+		color: '#333',
+		marginBottom: 10,
+	},
+	layeredPreview: {
+		width: '100%',
+		height: 200,
+		backgroundColor: 'white',
+		borderRadius: 4,
+		marginBottom: 10,
+		position: 'relative',
+	},
+	baseImagePreview: {
+		width: '100%',
+		height: '100%',
+		borderRadius: 4,
+	},
+	drawingOverlay: {
+		position: 'absolute',
+		top: 0,
+		left: 0,
+		width: '100%',
+		height: '100%',
+		borderRadius: 4,
 	},
 })

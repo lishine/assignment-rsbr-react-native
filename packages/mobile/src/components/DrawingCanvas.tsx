@@ -1,5 +1,5 @@
 import React, { useRef } from 'react'
-import { View, StyleSheet, Modal, TouchableOpacity, Text, Image } from 'react-native'
+import { View, StyleSheet, Modal, TouchableOpacity, Text } from 'react-native'
 import SignatureCanvas from 'react-native-signature-canvas'
 
 type DrawingCanvasProps = {
@@ -24,7 +24,8 @@ export default function DrawingCanvas({ visible, onClose, onSave, backgroundImag
 		signatureRef.current?.clearSignature()
 	}
 
-	const webStyle = `
+	// Use background image with CSS for drawing over image
+	const webStyle = backgroundImage && backgroundImageType ? `
 		body, html {
 			margin: 0;
 			padding: 0;
@@ -43,10 +44,44 @@ export default function DrawingCanvas({ visible, onClose, onSave, backgroundImag
 		}
 		.m-signature-pad--body {
 			border: none;
-			${backgroundImage && backgroundImageType ? `background-image: url(data:${backgroundImageType};base64,${backgroundImage});` : 'background-color: #f9f9f9;'}
+			background-color: white;
+			background-image: url('data:${backgroundImageType};base64,${backgroundImage}');
 			background-size: contain;
-			background-repeat: no-repeat;
 			background-position: center;
+			background-repeat: no-repeat;
+			position: relative;
+		}
+		.m-signature-pad--body canvas {
+			background-color: transparent !important;
+			position: relative;
+			z-index: 2;
+		}
+		.m-signature-pad--footer {
+			display: none;
+		}
+	` : `
+		body, html {
+			margin: 0;
+			padding: 0;
+			width: 100%;
+			height: 100%;
+			overflow: hidden;
+		}
+		.m-signature-pad {
+			box-shadow: none;
+			border: 3px dashed #007AFF;
+			margin: 8px;
+			border-radius: 8px;
+			width: calc(100% - 16px);
+			height: calc(100% - 16px);
+			box-sizing: border-box;
+		}
+		.m-signature-pad--body {
+			border: none;
+			background-color: transparent;
+		}
+		.m-signature-pad--body canvas {
+			background-color: transparent !important;
 		}
 		.m-signature-pad--footer {
 			display: none;
@@ -72,7 +107,7 @@ export default function DrawingCanvas({ visible, onClose, onSave, backgroundImag
 						onOK={handleSave}
 						descriptionText=""
 						webStyle={webStyle}
-						backgroundColor="white"
+						backgroundColor="transparent"
 						penColor="black"
 					/>
 				</View>
