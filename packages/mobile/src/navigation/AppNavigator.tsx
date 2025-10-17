@@ -1,48 +1,48 @@
-import React from 'react';
-import { NavigationContainer } from '@react-navigation/native';
-import { createStackNavigator } from '@react-navigation/stack';
-import { LoginScreen } from '../screens/LoginScreen.js';
-import { TasksScreen } from '../screens/TasksScreen.js';
+import { NavigationContainer } from '@react-navigation/native'
+import { createStackNavigator } from '@react-navigation/stack'
+import { LoginScreen } from '../screens/LoginScreen'
+import { TasksScreen } from '../screens/TasksScreen'
 
 export type RootStackParamList = {
-  Login: undefined;
-  Tasks: undefined;
-};
+	Login: undefined
+	Tasks: undefined
+}
 
-const Stack = createStackNavigator<RootStackParamList>();
+const Stack = createStackNavigator<RootStackParamList>()
 
 interface AppNavigatorProps {
-  isSignedIn: boolean;
+	isSignedIn: boolean
+	onLoginSuccess: () => void
+	onLogout: () => void
 }
 
-export function AppNavigator({ isSignedIn }: AppNavigatorProps) {
-  return (
-    <NavigationContainer>
-      <Stack.Navigator
-        screenOptions={{
-          headerShown: true,
-          animationEnabled: true,
-        }}
-      >
-        {!isSignedIn ? (
-          <Stack.Screen
-            name="Login"
-            component={LoginScreen}
-            options={{
-              headerShown: false,
-            }}
-          />
-        ) : (
-          <Stack.Screen
-            name="Tasks"
-            component={TasksScreen}
-            options={{
-              headerTitle: 'Tasks',
-              headerBackButtonDisplayMode: 'minimal',
-            }}
-          />
-        )}
-      </Stack.Navigator>
-    </NavigationContainer>
-  );
-}
+export const AppNavigator = ({ isSignedIn, onLoginSuccess, onLogout }: AppNavigatorProps) => (
+	<NavigationContainer key={isSignedIn ? 'signed-in' : 'signed-out'}>
+		<Stack.Navigator
+			screenOptions={{
+				headerShown: true,
+				animationEnabled: true,
+			}}
+		>
+			{!isSignedIn ? (
+				<Stack.Screen
+					name="Login"
+					options={{
+						headerShown: false,
+					}}
+				>
+					{(props) => <LoginScreen {...props} onLoginSuccess={onLoginSuccess} />}
+				</Stack.Screen>
+			) : (
+				<Stack.Screen
+					name="Tasks"
+					options={{
+						headerTitle: 'Tasks',
+					}}
+				>
+					{(props) => <TasksScreen {...props} onLogout={onLogout} />}
+				</Stack.Screen>
+			)}
+		</Stack.Navigator>
+	</NavigationContainer>
+)
