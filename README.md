@@ -4,6 +4,10 @@
 
 A minimal CRUD mobile app built with **React Native (Expo)** + **Node.js (Express)** demonstrating full-stack development.
 
+####
+
+This project was developed with AI assistance using Droid agent with Claude 4.5 and GLM 4.6 models
+
 ## Quick Start
 
 ### Prerequisites
@@ -60,10 +64,6 @@ pnpm start
 -   If backend running by then and tunnel to PC created, you will be able to login.
 
 ---
-
-## AI Usage Disclosure
-
-This project was developed with AI assistance using Droid agent with Claude 4.5 and GLM 4.6 models
 
 ## Features
 
