@@ -9,7 +9,11 @@ type ImagePickerComponentProps = {
 	currentImageType?: string
 }
 
-export default function ImagePickerComponent({ onImageSelected, currentImage, currentImageType }: ImagePickerComponentProps) {
+export default function ImagePickerComponent({
+	onImageSelected,
+	currentImage,
+	currentImageType,
+}: ImagePickerComponentProps) {
 	const [previewUri, setPreviewUri] = useState<string | undefined>(
 		currentImage && currentImageType ? `data:${currentImageType};base64,${currentImage}` : undefined
 	)
@@ -45,16 +49,12 @@ export default function ImagePickerComponent({ onImageSelected, currentImage, cu
 
 			while (quality > 10) {
 				const actions = quality < 100 ? [{ resize: { width: 800 } }] : []
-				
-				const manipulatedImage = await ImageManipulator.manipulateAsync(
-					imageUri,
-					actions,
-					{
-						compress: quality / 100,
-						format: ImageManipulator.SaveFormat.JPEG,
-						base64: true,
-					}
-				)
+
+				const manipulatedImage = await ImageManipulator.manipulateAsync(imageUri, actions, {
+					compress: quality / 100,
+					format: ImageManipulator.SaveFormat.JPEG,
+					base64: true,
+				})
 
 				base64 = manipulatedImage.base64
 				if (!base64) break

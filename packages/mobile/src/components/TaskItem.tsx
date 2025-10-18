@@ -28,8 +28,12 @@ export const TaskItem = ({ task, onToggle, onDelete, onEdit, loading, deleting }
 			disabled={!onEdit}
 		>
 			<Text style={[styles.title, task.completed && styles.titleCompleted]}>{task.title}</Text>
-			{task.description ? <Text style={[styles.description, task.completed && styles.descriptionCompleted]}>{task.description}</Text> : null}
-			
+			{task.description ? (
+				<Text style={[styles.description, task.completed && styles.descriptionCompleted]}>
+					{task.description}
+				</Text>
+			) : null}
+
 			<View style={styles.mediaContainer}>
 				{task.image && task.image_type && task.drawing ? (
 					// Show layered preview when both image and drawing exist
@@ -39,11 +43,7 @@ export const TaskItem = ({ task, onToggle, onDelete, onEdit, loading, deleting }
 							style={styles.baseThumbnail}
 							resizeMode="cover"
 						/>
-						<Image
-							source={{ uri: task.drawing }}
-							style={styles.drawingThumbOverlay}
-							resizeMode="cover"
-						/>
+						<Image source={{ uri: task.drawing }} style={styles.drawingThumbOverlay} resizeMode="cover" />
 					</View>
 				) : (
 					<>
@@ -55,11 +55,7 @@ export const TaskItem = ({ task, onToggle, onDelete, onEdit, loading, deleting }
 							/>
 						)}
 						{task.drawing && (
-							<Image
-								source={{ uri: task.drawing }}
-								style={styles.thumbnail}
-								resizeMode="cover"
-							/>
+							<Image source={{ uri: task.drawing }} style={styles.thumbnail} resizeMode="cover" />
 						)}
 					</>
 				)}

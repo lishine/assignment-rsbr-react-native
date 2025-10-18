@@ -10,7 +10,13 @@ type DrawingCanvasProps = {
 	backgroundImageType?: string
 }
 
-export default function DrawingCanvas({ visible, onClose, onSave, backgroundImage, backgroundImageType }: DrawingCanvasProps) {
+export default function DrawingCanvas({
+	visible,
+	onClose,
+	onSave,
+	backgroundImage,
+	backgroundImageType,
+}: DrawingCanvasProps) {
 	const signatureRef = useRef<any>(null)
 
 	const handleSave = (signature?: string) => {
@@ -25,7 +31,9 @@ export default function DrawingCanvas({ visible, onClose, onSave, backgroundImag
 	}
 
 	// Use background image with CSS for drawing over image
-	const webStyle = backgroundImage && backgroundImageType ? `
+	const webStyle =
+		backgroundImage && backgroundImageType
+			? `
 		body, html {
 			margin: 0;
 			padding: 0;
@@ -59,7 +67,8 @@ export default function DrawingCanvas({ visible, onClose, onSave, backgroundImag
 		.m-signature-pad--footer {
 			display: none;
 		}
-	` : `
+	`
+			: `
 		body, html {
 			margin: 0;
 			padding: 0;

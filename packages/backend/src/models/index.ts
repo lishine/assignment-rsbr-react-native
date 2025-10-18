@@ -48,7 +48,14 @@ export async function createTask(
 export async function updateTask(
 	id: number,
 	userId: number,
-	updates: { title?: string; description?: string; completed?: boolean; image?: string; drawing?: string; image_type?: string }
+	updates: {
+		title?: string
+		description?: string
+		completed?: boolean
+		image?: string
+		drawing?: string
+		image_type?: string
+	}
 ): Promise<Task | undefined> {
 	const fields = []
 	const values: (string | boolean | number)[] = []

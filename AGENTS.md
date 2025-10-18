@@ -12,3 +12,4 @@ The project uses automatic version management via GitHub Actions:
 
 in root:
 npx tsc --noEmit
+and run prettier: pnpm format
