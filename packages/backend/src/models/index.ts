@@ -1,5 +1,5 @@
-import { pool } from '../db/init.js'
-import { User, Task } from '../types.js'
+import { pool } from '../db/init'
+import { User, Task } from '../types'
 
 export async function getUserByEmail(email: string): Promise<User | undefined> {
 	const result = await pool.query('SELECT * FROM users WHERE email = $1', [email])

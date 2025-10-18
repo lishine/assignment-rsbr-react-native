@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest'
-import authRoutes from '../src/routes/auth.routes.js'
-import tasksRoutes from '../src/routes/tasks.routes.js'
+import authRoutes from '../src/routes/auth.routes'
+import tasksRoutes from '../src/routes/tasks.routes'
 
 describe('API Routes', () => {
 	describe('Auth Routes', () => {

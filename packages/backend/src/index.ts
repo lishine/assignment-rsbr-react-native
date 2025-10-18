@@ -1,11 +1,11 @@
 import express, { Request, Response } from 'express'
 import cors from 'cors'
 import swaggerUi from 'swagger-ui-express'
-import { initializeDatabase } from './db/init.js'
-import { errorHandler } from './middleware/errorHandler.js'
-import authRoutes from './routes/auth.routes.js'
-import tasksRoutes from './routes/tasks.routes.js'
-import { swaggerDoc } from './swagger.js'
+import { initializeDatabase } from './db/init'
+import { errorHandler } from './middleware/errorHandler'
+import authRoutes from './routes/auth.routes'
+import tasksRoutes from './routes/tasks.routes'
+import { swaggerDoc } from './swagger'
 
 const app = express()
 const PORT = process.env.PORT || 3000

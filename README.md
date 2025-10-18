@@ -1,5 +1,7 @@
 # Task Management App - Full Stack Challenge
 
+![App Screenshot](images/image.png)
+
 A minimal CRUD mobile app built with **React Native (Expo)** + **Node.js (Express)** demonstrating full-stack development.
 
 ## Quick Start

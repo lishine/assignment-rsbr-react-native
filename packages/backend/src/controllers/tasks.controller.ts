@@ -1,6 +1,6 @@
 import { Request, Response } from 'express'
-import { getTasksByUserId, getTaskById, createTask, updateTask, deleteTask } from '../models/index.js'
-import { TaskRequest } from '../types.js'
+import { getTasksByUserId, getTaskById, createTask, updateTask, deleteTask } from '../models/index'
+import { TaskRequest } from '../types'
 
 export async function listTasks(req: Request, res: Response) {
 	try {

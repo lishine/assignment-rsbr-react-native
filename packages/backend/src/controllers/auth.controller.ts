@@ -1,8 +1,8 @@
 import { Request, Response } from 'express'
 import jwt from 'jsonwebtoken'
-import { createUser, getUserByEmail } from '../models/index.js'
-import { AuthRequest, RegisterRequest, AuthResponse, JwtPayload } from '../types.js'
-import { hashPassword, comparePassword } from '../utils/crypto.js'
+import { createUser, getUserByEmail } from '../models/index'
+import { AuthRequest, RegisterRequest, AuthResponse, JwtPayload } from '../types'
+import { hashPassword, comparePassword } from '../utils/crypto'
 
 export async function register(req: Request<{}, {}, RegisterRequest>, res: Response) {
 	try {
