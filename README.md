@@ -149,40 +149,44 @@ The backend includes comprehensive unit tests using **Vitest** with 55+ test cas
 
 #### 🧪 Test Coverage
 
-- **Authentication Tests** (`auth.controller.test.ts`)
-  - User registration with validation
-  - User login with credential verification
-  - Error handling for invalid inputs
-  - JWT token generation and validation
+-   **Authentication Tests** (`auth.controller.test.ts`)
 
-- **Task Management Tests** (`tasks.controller.test.ts`)
-  - CRUD operations (Create, Read, Update, Delete)
-  - Task ownership verification
-  - Image and drawing data handling
-  - Error handling and edge cases
+    -   User registration with validation
+    -   User login with credential verification
+    -   Error handling for invalid inputs
+    -   JWT token generation and validation
 
-- **Database Models Tests** (`models.test.ts`)
-  - User operations (create, find by email/id)
-  - Task operations (CRUD with user isolation)
-  - SQL query validation
-  - Database connection handling
+-   **Task Management Tests** (`tasks.controller.test.ts`)
 
-- **Security Tests** (`utils/crypto.test.ts`)
-  - Password hashing with salt
-  - Password comparison with timing attack protection
-  - Edge cases and malformed inputs
+    -   CRUD operations (Create, Read, Update, Delete)
+    -   Task ownership verification
+    -   Image and drawing data handling
+    -   Error handling and edge cases
 
-- **Middleware Tests** (`middleware/`)
-  - JWT token verification middleware
-  - Error handling middleware
-  - Security validation
+-   **Database Models Tests** (`models.test.ts`)
+
+    -   User operations (create, find by email/id)
+    -   Task operations (CRUD with user isolation)
+    -   SQL query validation
+    -   Database connection handling
+
+-   **Security Tests** (`utils/crypto.test.ts`)
+
+    -   Password hashing with salt
+    -   Password comparison with timing attack protection
+    -   Edge cases and malformed inputs
+
+-   **Middleware Tests** (`middleware/`)
+    -   JWT token verification middleware
+    -   Error handling middleware
+    -   Security validation
 
 #### 🚀 Running Tests
 
 ```bash
 # Run all backend tests
 cd packages/backend
-npm test
+pnpm test
 
 # Run tests in watch mode
 npm run test:watch
@@ -190,42 +194,6 @@ npm run test:watch
 # Run tests with coverage
 npm run test:coverage
 ```
-
-#### 📊 Test Configuration
-
-- **Test Environment**: Node.js (isolated from frontend)
-- **Test Files**: Located in `packages/backend/tests/`
-- **Mocking Strategy**: Vitest mocking for external dependencies
-- **Database**: Uses mock pool for database operations
-- **Cleanup**: Automatic test data isolation between tests
-
-#### 🛠️ Test Structure
-
-```
-packages/backend/tests/
-├── setup.ts                 # Test environment setup
-├── utils/
-│   └── test-helpers.ts      # Common test utilities
-├── auth.controller.test.ts  # Authentication endpoint tests
-├── tasks.controller.test.ts # Task CRUD tests
-├── models.test.ts          # Database model tests
-├── middleware/
-│   ├── auth.test.ts        # JWT middleware tests
-│   └── errorHandler.test.ts # Error handling tests
-├── utils/
-│   └── crypto.test.ts      # Password hashing tests
-└── routes.test.ts          # Route configuration tests
-```
-
-#### ✅ Test Benefits
-
-- **Reliability**: Ensures API endpoints work correctly
-- **Security**: Validates authentication and authorization
-- **Maintainability**: Catches regressions during development
-- **Documentation**: Tests serve as living documentation
-- **Confidence**: Enables safe refactoring and feature additions
-
-**55 passing tests** ensure comprehensive coverage of the backend API functionality with proper error handling and security validation.
 
 ---
 
@@ -238,12 +206,12 @@ packages/backend/tests/
 -   [ ] Rate limiting
 -   [ ] Pagination for tasks
 -   [ ] Task filtering/sorting
--   [x] Unit tests (Vitest)
+-   [v] Unit tests (Vitest)
 
 ### Frontend
 
--   [ ] Including image in a task
--   [ ] Drawing in a task
+-   [v] Including image in a task
+-   [v] Drawing in a task
 -   [ ] Pull-to-refresh
 -   [ ] Search/filter UI
 -   [ ] Theme, Dark mode, Animations
