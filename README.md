@@ -1,10 +1,6 @@
-<p align="center">
-  <h1>Task Management App - Full Stack Challenge</h1>
-</p>
+# Task Management App - Full Stack Challenge
 
-<p align="center">
-  <img src="images/image.png" alt="App Screenshot" width="300"/>
-</p>
+![App Screenshot](images/image.png)
 
 A minimal CRUD mobile app built with **React Native (Expo)** + **Node.js (Express)** demonstrating full-stack development.
 
